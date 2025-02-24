@@ -52,14 +52,14 @@ class Drone:
             else (self.pos[2] - other_drone.pos[2]) ** 2
         ) ** 0.5
 
-    def calculate_inference(self):
-        inference = 0
+    def calculate_interference(self):
+        interference = 0
         for drone in self.channel.drones:
             if self.id != drone.id:
                 dis2 = (drone.edge or drone.base).distance(drone) ** 2
                 fading = fading_matrix[self.channel.id, drone.id]
-                inference += fading * config["P"] / 10**3.53 / dis2**3.76
-        return inference
+                interference += fading * config["P"] / 10**3.53 / dis2**3.76
+        return interference
 
     def move(self, frame):
         self.pos[0] += self.speed[0] * config["uav_speed"] * np.sin(frame / 18)
