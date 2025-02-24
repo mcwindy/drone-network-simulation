@@ -20,7 +20,7 @@ class Drone:
         self.id = Drone._id
         Drone._id += 1
         self.pos = pos
-        self.speed = (0, 0, 0) if config["dimension"] == 3 else (0, 0)
+        self.speed = (0, 0) if config["dimension"] == 2 else (0, 0, 0)
         self.speed = random_speed()
         self.type = type
         self.channel = None
@@ -54,18 +54,18 @@ class Drone:
 
     def calculate_inference(self):
         inference = 0
-        for other_drone in self.channel.drones:
-            if self.id != other_drone.id:
-                dis2 = (other_drone.edge or other_drone.base).distance(other_drone) ** 2
-                fading = fading_matrix[self.id, other_drone.id]
-                inference += fading * (10 ** ((10 * np.log10(config["P"]) - 35.3 - 37.6 * np.log10(dis2)) / 10))
+        for drone in self.channel.drones:
+            if self.id != drone.id:
+                dis2 = (drone.edge or drone.base).distance(drone) ** 2
+                fading = fading_matrix[self.channel.id, drone.id]
+                inference += fading * config["P"] / 10**3.53 / dis2**3.76
         return inference
 
     def move(self, frame):
-        self.pos[0] = self.pos[0] + self.speed[0] * config["uav_speed"] * np.sin(frame / 18)
-        self.pos[1] = self.pos[1] + self.speed[1] * config["uav_speed"] * np.cos(frame / 18)
+        self.pos[0] += self.speed[0] * config["uav_speed"] * np.sin(frame / 18)
+        self.pos[1] += self.speed[1] * config["uav_speed"] * np.cos(frame / 18)
         if config["dimension"] == 3:
-            self.pos[2] = self.pos[2] + self.speed[2] * config["uav_speed"] * np.sin(frame / 10)
+            self.pos[2] += self.speed[2] * config["uav_speed"] * np.sin(frame / 10)
         # self.pos = tuple(self.pos[i] + self.speed[i] * config["uav_speed"] for i in range(3 if config["dimension"] == 3 else 2))
 
 

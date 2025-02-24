@@ -14,7 +14,7 @@ def calculate_throughput():
     for uav in [*edges, *uavs]:
         dis2 = (uav.edge if uav.type == DroneType.Uav else uav.base).distance(uav) ** 2
         fading = fading_matrix[uav.channel.id, uav.id]
-        snr = fading * (10 ** ((10 * np.log10(config["P"]) - 35.3 - 37.6 * np.log10(dis2)) / 10))
+        snr = fading * config["P"] / 10**3.53 / dis2**3.76
         sinr = snr / (config["noise"] + uav.calculate_inference())
         uav_throughput[uav.id] += config["channel_bandwith"] * np.log2(1 + sinr)
     edge_sub_throughput = [0 for _ in range(config["uav_count"])]
