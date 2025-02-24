@@ -28,6 +28,8 @@ class Drone:
         self.edge = None  # if type is Uav, self.edge is not None
 
     def join_channel(self, channel):
+        if self.channel:
+            self.channel.drones.remove(self)
         channel.drones.append(self)
         self.channel = channel
 
@@ -67,6 +69,10 @@ class Drone:
         if config["dimension"] == 3:
             self.pos[2] += self.speed[2] * config["uav_speed"] * np.sin(frame / 10)
         # self.pos = tuple(self.pos[i] + self.speed[i] * config["uav_speed"] for i in range(3 if config["dimension"] == 3 else 2))
+
+    def snr_without_interference(self):
+        snr = fading_matrix[self.channel.id, self.id] * config["P"] / 10**3.53 / self.distance(self.base) ** 2
+        return snr
 
 
 bases = [Drone(random_pos(), DroneType.Base) for _ in range(config["base_count"])]
